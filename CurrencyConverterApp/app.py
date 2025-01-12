@@ -40,4 +40,4 @@ def index():
     return render_template('index.html', exchange_rates=exchange_rates, conversion_result=conversion_result)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
