@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+    
+    stages {
+         stage ('checkout from scm') {
+            steps {
+                git 'https://github.com/Utk2022/python-workspace.git'
+            }
+        }
+           stage ('sonarqube-analysis'){
+             steps {
+                dir ('CurrencyConverterApp') {
+                    script {
+                        withSonarQubeEnv(credentialsId: 'sonar-token') {
+                            sh '/opt/sonar-scanner/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner -Dsonar.projectKey=currency-converter-python-app -Dsonar.sources=. -Dsonar.host.url=http://172.16.8.10:9000 -Dsonar.login=sqp_fe5cd14fdedcdb6e599b4c6717ce5a8830c2e016'
+                        }
+                        //quality gate
+                        //timeout(time: 5, unit: 'MINUTES'){
+                        //def qg = waitForQualityGate()
+                        //if(qg.status != 'OK'){
+                        //error "pipeline is aborted due to quality gate failure: ${qg.status}"
+                          
+                        //} 
+                   //}
+                }
+                }
+             }
+           }
+          stage("Docker Image Build") {
+            steps {
+                script {
+                    dir('CurrencyConverterApp') {
+                            sh 'docker system prune -f'
+                            sh 'docker container prune -f'
+                            sh 'docker build -t currencyconverter$BUILD_ID .'
+                    }
+                }
+            }
+        }
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/Utk2022/python-workspace.git'
+            }
+        }
+        stage('Cleanws') {
+            steps {
+                cleanWs()
+            }
+        }
+        }
+}
+          
+
